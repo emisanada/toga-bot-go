@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/emisanada/toga-bot-go/pkg/exchange"
 )
 
 func init() {
@@ -34,6 +35,8 @@ func main() {
 		return
 	}
 
+	tg.AddHandler(messageCreate)
+
 	err = tg.Open()
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -47,4 +50,24 @@ func main() {
 	<-sc
 
 	tg.Close()
+}
+
+func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+
+	// Ignore all messages created by the bot itself
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+
+	if m.Content == "TOGA" {
+		s.ChannelMessageSend(m.ChannelID, "LUSY")
+	}
+
+	if m.Content == "LUSY" {
+		s.ChannelMessageSend(m.ChannelID, "TOGA")
+	}
+
+	if m.Content == "exchange" {
+		s.ChannelMessageSend(m.ChannelID, exchange.GetPrice("coal"))
+	}
 }
