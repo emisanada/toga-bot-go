@@ -3,6 +3,8 @@ package exchange
 import (
 	"io/ioutil"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // GetPrice returns a string json with all the information about an item
