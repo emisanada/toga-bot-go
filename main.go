@@ -2,38 +2,43 @@ package main
 
 import (
 	"flag"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
 
-	toga "github.com/emisanada/toga-bot-go"
+	"github.com/bwmarrin/discordgo"
 )
 
-var Session, _ = toga.New()
-
 func init() {
-	// Discord Authentication Token
-	Session.Token = os.Getenv("DG_TOKEN")
-	if Session.Token == "" {
-		flag.StringVar(&Session.Token, "t", "", "Discord Authentication Token")
-	}
+	flag.StringVar(&token, "t", "", "Discord Authentication Token")
+	flag.Parse()
 }
 
+var token string
+var buffer = make([][]byte, 0)
+
 func main() {
-	if Session.Token == "" {
+
+	if token == "" {
 		log.Warn("Please provide an authentication token")
 		return
 	}
 
-	err := Session.Open()
+	tg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Fatal("Error opening Discord connection")
-		os.Exit(1)
+		return
+	}
+
+	err = tg.Open()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Fatal("Error opening Discord session")
 	}
 
 	log.Info("Starting Toga Bot")
@@ -41,5 +46,5 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
-	Session.Close()
+	tg.Close()
 }
