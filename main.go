@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/toga-bot-go/pkg/formatter"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emisanada/toga-bot-go/pkg/exchange"
@@ -69,8 +68,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, "TOGA")
 	}
 
+	if m.Content == "!help" {
+		s.ChannelMessageSend(m.ChannelID, "To check an item price type `!exchange [item_name]`")
+	}
+
 	if strings.HasPrefix(m.Content, "!exchange") {
-		item := formatter.ReplaceSpaces(m.Content[10:])
+		item := exchange.FormatString(m.Content[10:])
 		s.ChannelMessageSend(m.ChannelID, exchange.GetPrice(item))
 	}
 }
